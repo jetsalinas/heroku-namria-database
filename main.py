@@ -3,6 +3,7 @@ API for NAMRIA Mobile app database
 
 :Author:    Jose Enrico T. SALINAS
 :Version:   06102017
+:Notes: Adapted from github.com/blubits/streserve by Maded Batara III
 """
 
 import os
@@ -81,6 +82,7 @@ for light in lights:
     database.session.add(light)
 database.session.commit()
 
+#LOAD SCHEMAS
 light_schema = LightSchema()
 
 #########
@@ -90,6 +92,14 @@ light_schema = LightSchema()
 @app.route("/")
 def home():
         return "Hello world!"
+
+@app.route("/lights")
+def get_all_lights():
+    result = [
+        light_schema.dump(light).data
+        for light in Light.query.all()
+    ]
+    return jsonify(result)
 
 if __name__ == "__main__":
     app.run()
