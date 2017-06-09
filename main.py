@@ -7,7 +7,7 @@ API for NAMRIA Mobile app database
 
 import os
 import datetime
-import os
+import csv
 import re
 
 from flask import Flask
@@ -38,6 +38,7 @@ class Light(database.Model):
     lightAltitude = database.Column(database.Float)
     lightStatus = database.Column(database.Boolean)
 
+    """
     def __init__(self, id, name, latitude, longitude, altitude, status):
         self.lightID = id
         self.lightName = name
@@ -45,9 +46,10 @@ class Light(database.Model):
         self.lightLongitude = longitude
         self.lightAltitude = altitude
         self.lightStatus = status
+    """
 
     def __repr__(self):
-        return "<Light '{0}','{1}','{2}','{3}','{4}','{5}'".format(
+        return "Light '{0}','{1}','{2}','{3}','{4}','{5}'".format(
             self.lightID,
             self.lightName,
             self.lightLatitude,
@@ -58,6 +60,40 @@ class Light(database.Model):
 class LightSchema(marshmallow.ModelSchema):
     class Meta:
         model = Light
+
+lights = []
+with open("listoflights.csv") as lights_csv:
+    lights_list = csv.reader(lights_csv)
+    for row in lights_list:
+        lights.append(Light(
+            lightID=row[0],
+            lightName=row[1],
+            lightLatitude=row[2],
+            lightLongitude=row[3],
+            lightAltitude=row[4],
+            lightStatus=row[5]
+            ))
+
+for light in lights:
+    print(light.__repr__())
+
+"""
+test = Light(
+    lightID=322,
+    lightName="John Kinsey",
+    lightLatitude=122.32112,
+    lightLongitude=4.213213,
+    lightAltitude=30,
+    lightStatus=True
+    )
+
+print(test.lightID)
+print(test.lightName)
+print(test.lightLatitude)
+print(test.lightLongitude)
+print(test.lightAltitude)
+print(test.lightStatus)
+"""
 
 #########
 ## APP ##
