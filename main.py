@@ -59,9 +59,6 @@ class LightSchema(marshmallow.ModelSchema):
     class Meta:
         model = Light
 
-
-database.create_all()
-
 #########
 ## APP ##
 #########
