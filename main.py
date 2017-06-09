@@ -24,6 +24,12 @@ CORS(app)
 database = SQLAlchemy(app)
 marshmallow = Marshmallow(app)
 
+if 'DYNO' in os.environ:
+    import psycopg2
+    hr = Heroku(app)
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///local.db'
+
 #############
 ## SCHEMA  ##
 #############
@@ -37,16 +43,6 @@ class Light(database.Model):
     lightLongitude = database.Column(database.Float)
     lightAltitude = database.Column(database.Float)
     lightStatus = database.Column(database.Boolean)
-
-    """
-    def __init__(self, id, name, latitude, longitude, altitude, status):
-        self.lightID = id
-        self.lightName = name
-        self.lightLatitude = latitude
-        self.lightLongitude = longitude
-        self.lightAltitude = altitude
-        self.lightStatus = status
-    """
 
     def __repr__(self):
         return "Light '{0}','{1}','{2}','{3}','{4}','{5}'".format(
@@ -74,26 +70,18 @@ with open("listoflights.csv") as lights_csv:
             lightStatus=row[5]
             ))
 
+#CLEARS DATABASE FROM FRESH RUN
+if 'DYNO' not in os.environ:
+    database.reflect()
+    database.drop_all()
+
+#LOAD DATABASE FROM CSV FILE
+database.create_all()
 for light in lights:
-    print(light.__repr__())
+    database.session.add(light)
+database.session.commit()
 
-"""
-test = Light(
-    lightID=322,
-    lightName="John Kinsey",
-    lightLatitude=122.32112,
-    lightLongitude=4.213213,
-    lightAltitude=30,
-    lightStatus=True
-    )
-
-print(test.lightID)
-print(test.lightName)
-print(test.lightLatitude)
-print(test.lightLongitude)
-print(test.lightAltitude)
-print(test.lightStatus)
-"""
+light_schema = LightSchema()
 
 #########
 ## APP ##
